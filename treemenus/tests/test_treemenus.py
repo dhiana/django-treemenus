@@ -2,8 +2,8 @@ try:
     from imp import reload  # Python 3
 except ImportError:
     pass
+from copy import deepcopy
 from django.test import TestCase
-from django.test.utils import override_settings
 from django.conf import settings
 from django.core.management import call_command
 from django.db.models.loading import load_app
@@ -663,25 +663,28 @@ class TreemenusTestCase(TestCase):
         self.assertEqual(new_context.get('menu'), menu)
         self.assertEqual(new_context.get('menu_name'), menu_name)
 
-    @override_settings(TEMPLATE_DEBUG=False)
     def test_show_menu_should_fail_gracefully_when_menu_does_not_exist_and_debug_false(self):
         # Regression test for issue #32
         # https://github.com/jphalip/django-treemenus/issues/32
         menu_name = 'menu_show_menu_fail_gracefully'
-        
+
         # Ensures menu wont exist (in case another test creates it!)
         existing_menus = Menu.objects.filter(name=menu_name)
         existing_menus.delete()
 
-        with self.settings(TEMPLATE_DEBUG=False):
-            context = {}
-            new_context = show_menu(context, menu_name)
-            # Should not raise DoesNotExist
-            # Should by-pass context
-            self.assertEqual(new_context, context)
+        old_TEMPLATE_DEBUG = deepcopy(settings.TEMPLATE_DEBUG)
 
-        with self.settings(TEMPLATE_DEBUG=True):
-            # Should raise DoesNotExist
-            with self.assertRaises(Menu.DoesNotExist):
-                context = {}
-                show_menu(context, menu_name)
+        settings.TEMPLATE_DEBUG=False
+        context = {}
+        new_context = show_menu(context, menu_name)
+        # Should not raise DoesNotExist
+        # Should by-pass context
+        self.assertEqual(new_context, context)
+
+        settings.TEMPLATE_DEBUG=True
+        # Should raise DoesNotExist
+        with self.assertRaises(Menu.DoesNotExist):
+            context = {}
+            show_menu(context, menu_name)
+
+        settings.INSTALLED_APPS = old_TEMPLATE_DEBUG
