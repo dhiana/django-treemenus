@@ -666,6 +666,8 @@ class TreemenusTestCase(TestCase):
         # Regression test for issue #32
         # https://github.com/jphalip/django-treemenus/issues/32
         menu_name = 'menu_show_menu_fail_gracefully'
+        context = {}
+        args = (context, menu_name)
 
         # Ensures menu wont exist (in case another test creates it!)
         existing_menus = Menu.objects.filter(name=menu_name)
@@ -674,16 +676,13 @@ class TreemenusTestCase(TestCase):
         old_TEMPLATE_DEBUG = settings.TEMPLATE_DEBUG
 
         settings.TEMPLATE_DEBUG=False
-        context = {}
-        new_context = show_menu(context, menu_name)
+        new_context = show_menu(*args)
         # Should not raise DoesNotExist
         # Should by-pass context
         self.assertEqual(new_context, context)
 
         settings.TEMPLATE_DEBUG=True
         # Should raise DoesNotExist
-        context = {}
-        args = (context, menu_name)
         self.assertRaises(Menu.DoesNotExist, show_menu, *args)
 
         settings.TEMPLATE_DEBUG = old_TEMPLATE_DEBUG
