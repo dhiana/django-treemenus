@@ -687,4 +687,4 @@ class TreemenusTestCase(TestCase):
         args = (context, menu_name)
         self.assertRaises(Menu.DoesNotExist, show_menu, *args)
 
-        settings.INSTALLED_APPS = old_TEMPLATE_DEBUG
+        settings.TEMPLATE_DEBUG = old_TEMPLATE_DEBUG
