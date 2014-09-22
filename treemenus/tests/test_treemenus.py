@@ -2,7 +2,6 @@ try:
     from imp import reload  # Python 3
 except ImportError:
     pass
-from copy import deepcopy
 from django.test import TestCase
 from django.conf import settings
 from django.core.management import call_command
@@ -672,7 +671,7 @@ class TreemenusTestCase(TestCase):
         existing_menus = Menu.objects.filter(name=menu_name)
         existing_menus.delete()
 
-        old_TEMPLATE_DEBUG = deepcopy(settings.TEMPLATE_DEBUG)
+        old_TEMPLATE_DEBUG = settings.TEMPLATE_DEBUG
 
         settings.TEMPLATE_DEBUG=False
         context = {}
